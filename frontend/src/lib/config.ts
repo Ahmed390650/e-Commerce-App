@@ -12,4 +12,3 @@ export const sdk = new Medusa({
   debug: process.env.NODE_ENV === "development",
   publishableKey: process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY,
 })
-console.log(sdk)

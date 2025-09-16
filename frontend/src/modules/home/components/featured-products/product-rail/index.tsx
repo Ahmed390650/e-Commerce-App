@@ -1,4 +1,5 @@
 import { listProducts } from "@lib/data/products"
+import { getProductPrice } from "@lib/util/get-product-price"
 import { HttpTypes } from "@medusajs/types"
 import { Text } from "@medusajs/ui"
 
@@ -38,10 +39,21 @@ export default async function ProductRail({
         {pricedProducts &&
           pricedProducts.map((product) => (
             <li key={product.id}>
-              <ProductPreview product={product} region={region} isFeatured />
+              <Products product={product} region={region} />
             </li>
           ))}
       </ul>
     </div>
+  )
+}
+const Products = async ({ product, region }) => {
+  const { cheapestPrice } = getProductPrice({ product })
+  return (
+    <ProductPreview
+      cheapestPrice={cheapestPrice!}
+      discountPercentage={12}
+      isFeatured
+      product={product}
+    />
   )
 }

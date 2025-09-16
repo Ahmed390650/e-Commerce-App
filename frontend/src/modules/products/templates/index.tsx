@@ -1,4 +1,6 @@
 import React, { Suspense } from "react"
+import { notFound } from "next/navigation"
+import { HttpTypes } from "@medusajs/types"
 
 import ImageGallery from "@modules/products/components/image-gallery"
 import ProductActions from "@modules/products/components/product-actions"
@@ -7,9 +9,7 @@ import ProductTabs from "@modules/products/components/product-tabs"
 import RelatedProducts from "@modules/products/components/related-products"
 import ProductInfo from "@modules/products/templates/product-info"
 import SkeletonRelatedProducts from "@modules/skeletons/templates/skeleton-related-products"
-import { notFound } from "next/navigation"
 import ProductActionsWrapper from "./product-actions-wrapper"
-import { HttpTypes } from "@medusajs/types"
 
 type ProductTemplateProps = {
   product: HttpTypes.StoreProduct
@@ -28,34 +28,54 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
 
   return (
     <>
+      {/* Product Container */}
       <div
-        className="content-container flex flex-col small:flex-row small:items-start py-6 relative"
+        className="content-container grid grid-cols-1 lg:grid-cols-12 gap-12 py-12"
         data-testid="product-container"
       >
-        <div className="flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-6">
-          <ProductInfo product={product} />
-          <ProductTabs product={product} />
+        {/* Left Sidebar: Info + Tabs */}
+        <div className="lg:col-span-3 flex flex-col gap-8 sticky top-28 self-start">
+          <div className="p-4 rounded-2xl border border-ui-border-base bg-ui-bg-subtle/60">
+            <ProductInfo product={product} />
+          </div>
+
+          <div className="p-4 rounded-2xl border border-ui-border-base bg-ui-bg-subtle/60">
+            <ProductTabs product={product} />
+          </div>
         </div>
-        <div className="block w-full relative">
-          <ImageGallery images={product?.images || []} />
+
+        {/* Center: Image Gallery */}
+        <div className="lg:col-span-6 relative">
+          <div className="overflow-hidden rounded-3xl border border-ui-border-base shadow-sm">
+            <ImageGallery images={product?.images || []} />
+          </div>
         </div>
-        <div className="flex flex-col small:sticky small:top-48 small:py-0 small:max-w-[300px] w-full py-8 gap-y-12">
-          <ProductOnboardingCta />
-          <Suspense
-            fallback={
-              <ProductActions
-                disabled={true}
-                product={product}
-                region={region}
-              />
-            }
-          >
-            <ProductActionsWrapper id={product.id} region={region} />
-          </Suspense>
+
+        {/* Right Sidebar: CTA + Actions */}
+        <div className="lg:col-span-3 flex flex-col gap-8 sticky top-28 self-start">
+          <div className="p-6 rounded-2xl border border-ui-border-base bg-ui-bg-subtle/60">
+            <ProductOnboardingCta />
+          </div>
+
+          <div className="p-6 rounded-2xl border border-ui-border-base bg-ui-bg-subtle/60">
+            <Suspense
+              fallback={
+                <ProductActions
+                  disabled={true}
+                  product={product}
+                  region={region}
+                />
+              }
+            >
+              <ProductActionsWrapper id={product.id} region={region} />
+            </Suspense>
+          </div>
         </div>
       </div>
+
+      {/* Related Products */}
       <div
-        className="content-container my-16 small:my-32"
+        className="content-container my-20 lg:my-32"
         data-testid="related-products-container"
       >
         <Suspense fallback={<SkeletonRelatedProducts />}>
