@@ -1,92 +1,51 @@
-"use client"
-import { Plus, ShoppingCart } from "@medusajs/icons"
+import { Text } from "@medusajs/ui"
+import { listProducts } from "@lib/data/products"
+import { getProductPrice } from "@lib/util/get-product-price"
 import { HttpTypes } from "@medusajs/types"
-import { Badge, Button, Text } from "@medusajs/ui"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import { motion } from "framer-motion"
-import { VariantPrice } from "types/global"
 import Thumbnail from "../thumbnail"
 import PreviewPrice from "./price"
 
-export default function ProductCard({
-  cheapestPrice,
-  isFeatured,
+export default async function ProductPreview({
   product,
-  discountPercentage,
+  isFeatured,
+  region,
 }: {
   product: HttpTypes.StoreProduct
   isFeatured?: boolean
-  cheapestPrice?: VariantPrice
-  discountPercentage?: number
+  region: HttpTypes.StoreRegion
 }) {
+  // const pricedProduct = await listProducts({
+  //   regionId: region.id,
+  //   queryParams: { id: [product.id!] },
+  // }).then(({ response }) => response.products[0])
+
+  // if (!pricedProduct) {
+  //   return null
+  // }
+
+  const { cheapestPrice } = getProductPrice({
+    product,
+  })
+
   return (
-    <div className="product-card flex flex-col border border-ui-border-base rounded-2xl shadow-sm hover:shadow-md overflow-hidden bg-ui-bg-base">
-      {/* Discount Badge */}
-      {discountPercentage && (
-        <div className="absolute top-3 left-3">
-          <Badge size="small" color="red">
-            -{discountPercentage}%
-          </Badge>
-        </div>
-      )}
-
-      {/* Product Link & Image */}
-      <LocalizedClientLink
-        href={`/products/${product.handle}`}
-        className="no-underline"
-      >
-        <div className="flex flex-col items-center p-3">
-          <Thumbnail
-            thumbnail={product.thumbnail}
-            images={product.images}
-            size="full"
-            className="w-40 h-40 object-contain"
-          />
-        </div>
-      </LocalizedClientLink>
-
-      {/* Price Section */}
-      <div className="px-4 text-center">
-        {cheapestPrice ? (
-          <div className="price flex justify-center items-baseline gap-2">
-            {/* Special / Discounted Price */}
-            <Text className="text-lg font-semibold text-ui-fg-base">
-              {cheapestPrice.calculated_price}
-            </Text>
-            {/* Regular Price */}
-            {cheapestPrice.original_price !==
-              cheapestPrice.calculated_price && (
-              <Text className="text-sm text-ui-fg-subtle line-through">
-                {cheapestPrice.original_price}
-              </Text>
-            )}
+    <LocalizedClientLink href={`/products/${product.handle}`} className="group">
+      <div data-testid="product-wrapper">
+        <Thumbnail
+          thumbnail={product.thumbnail}
+          images={product.images}
+          size="full"
+          isFeatured={isFeatured}
+        />
+        <div className="flex txt-compact-medium mt-4 justify-between">
+          <Text className="text-ui-fg-subtle" data-testid="product-title">
+            {product.title}
+          </Text>
+          <div className="flex items-center gap-x-2">
+            {cheapestPrice && <PreviewPrice price={cheapestPrice} />}
           </div>
-        ) : (
-          <Text className="text-ui-fg-subtle">Not available</Text>
-        )}
+        </div>
       </div>
-
-      {/* Brand + Name */}
-      <div className="px-4 mt-2 text-center">
-        <Text className="text-sm font-medium text-ui-fg-subtle">
-          {product.collection?.title || product.type?.value || "Brand"}
-        </Text>
-        <Text className="text-sm font-semibold line-clamp-2">
-          {product.title}
-        </Text>
-      </div>
-
-      {/* Add to Cart */}
-      <div className="mt-3 px-4 pb-4">
-        <Button
-          variant="secondary"
-          size="small"
-          className="w-full flex items-center justify-center gap-2"
-        >
-          <span>أضف</span>
-          <Plus className="w-4 h-4" />
-        </Button>
-      </div>
-    </div>
+    </LocalizedClientLink>
   )
 }

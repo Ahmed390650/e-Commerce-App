@@ -55,7 +55,6 @@ async function getRegionMap(cacheId: string) {
         regionMapCache.regionMap.set(c.iso_2 ?? "", region)
       })
     })
-
     regionMapCache.regionMapUpdated = Date.now()
   }
 

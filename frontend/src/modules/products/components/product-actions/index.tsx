@@ -137,9 +137,7 @@ export default function ProductActions({
             </div>
           )}
         </div>
-
         <ProductPrice product={product} variant={selectedVariant} />
-
         <Button
           onClick={handleAddToCart}
           disabled={
