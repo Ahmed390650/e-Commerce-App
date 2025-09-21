@@ -18,6 +18,7 @@ const ImageGallery = ({
   if (!images) return null;
   return (
     <Carousel
+      className="w-full"
       opts={{
         align: "center",
 

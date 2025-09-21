@@ -18,7 +18,6 @@ type ProductInfoProps = {
 
 const ProductPreview = async ({ product }: ProductInfoProps) => {
   const { cheapestPrice } = getProductPrice({ product });
-
   return (
     <Card className="bg-[#f9f9f9] py-4 px-5 mb-4 cursor-pointer relative rounded-none shadow-none border-none h-[400px] flex flex-col gap-2">
       <CardContent className="p-0 flex-1  ">

@@ -28,7 +28,7 @@ export default function RootLayout({
       <body>
         <QueryProvider>
           <Nav />
-          {children}
+          <main className="container mx-auto max-w-7xl mt-5">{children}</main>
           <Toaster position="bottom-left" richColors />
         </QueryProvider>
       </body>

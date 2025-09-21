@@ -1,38 +1,37 @@
 import { Button } from "@/components/ui/button";
-import { addToCart } from "@/lib/data/cart";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import useAddCart from "@/lib/hooks/useAddCart";
 import { Loader2Icon } from "lucide-react";
-import React from "react";
 import { toast } from "sonner";
 
-const ActionButton = ({ variantId }: { variantId?: string }) => {
-  const { mutate, isPending } = useMutation({
-    mutationFn: addToCart,
-    onSuccess: () => {
-      toast.success("Product Add to Cart", { id: "add-to-cart" });
-    },
-    onError(error) {
-      toast.error(error.message, { id: "add-to-cart" });
-    },
-  });
+const ActionButton = ({
+  variantId,
+  countryCode,
+}: {
+  variantId?: string;
+  countryCode: string;
+}) => {
+  const { addToCart, isAdding } = useAddCart();
   const handleAddToCart = () => {
-    if (!variantId) return null;
+    if (!variantId) {
+      toast.error("Variant id missing", { id: "add-to-cart" });
+      return;
+    }
 
-    mutate({
+    addToCart({
       variantId: variantId,
       quantity: 1,
-      countryCode: "eg",
+      countryCode,
     });
   };
   return (
     <Button
       variant={"outline"}
       size={"lg"}
-      disabled={isPending}
+      disabled={isAdding}
       className="uppercase rounded-sm"
       onClick={handleAddToCart}
     >
-      {isPending ? <Loader2Icon className="animate-spin" /> : "add to cart"}
+      {isAdding ? <Loader2Icon className="animate-spin" /> : "add to cart"}
     </Button>
   );
 };

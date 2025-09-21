@@ -1,13 +1,13 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { isEqual } from "@/lib/utils";
 import { getProductPrice } from "@/lib/utils/get-product-price";
 import { HttpTypes } from "@medusajs/types";
-import ActionButton from "../product-action";
-import PreviewPrice from "../product-Preview/PreviewPrice";
-import { Separator } from "@/components/ui/separator";
-import OptionSelect from "../product-action/OptionsButton";
 import * as React from "react";
-import { isEqual } from "@/lib/utils";
+import ActionButton from "../product-action";
+import OptionSelect from "../product-action/OptionsButton";
+import PreviewPrice from "../product-Preview/PreviewPrice";
 
 const optionsAsKeymap = (
   variantOptions: HttpTypes.StoreProductVariant["options"]
@@ -17,7 +17,13 @@ const optionsAsKeymap = (
     return acc;
   }, {});
 };
-const ProductInfo = ({ product }: { product: HttpTypes.StoreProduct }) => {
+const ProductInfo = ({
+  product,
+  countryCode,
+}: {
+  product: HttpTypes.StoreProduct;
+  countryCode: string;
+}) => {
   const [options, setOptions] = React.useState<
     Record<string, string | undefined>
   >({});
@@ -81,7 +87,8 @@ const ProductInfo = ({ product }: { product: HttpTypes.StoreProduct }) => {
         </div>
       )}
       <Separator />
-      <ActionButton variantId={selectedVariant?.id} />
+
+      <ActionButton variantId={selectedVariant?.id} countryCode={countryCode} />
     </div>
   );
 };
