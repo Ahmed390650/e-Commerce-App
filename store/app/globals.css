@@ -128,4 +128,7 @@ h6 {
   body {
     @apply bg-background text-foreground;
   }
+  .row {
+    @apply box-border flex flex-wrap -mx-[8px] flex-row shrink-1 grow-0;
+  }
 }

@@ -31,6 +31,7 @@ export const getPricesForVariant = (variant: any) => {
         variant.calculated_price.calculated_amount,
       currency_code: variant.calculated_price.currency_code,
     }),
+    variantId: variant.id,
   };
 };
 export const getProductPrice = ({
@@ -66,7 +67,6 @@ export const getProductPrice = ({
     const variant: any = product.variants?.find(
       (v) => v.id === variantId || v.sku === variantId
     );
-
     if (!variant) {
       return null;
     }
@@ -77,5 +77,38 @@ export const getProductPrice = ({
     product,
     cheapestPrice: cheapestPrice(),
     variantPrice: variantPrice(),
+  };
+};
+export const getPriceForVariantCart = (
+  item: HttpTypes.StoreCartLineItem,
+  currency_code: string
+) => {
+  if (!item) {
+    return null;
+  }
+  const { compare_at_unit_price, unit_price, variant_id } = item;
+  const calculated_amount = compare_at_unit_price
+    ? compare_at_unit_price
+    : unit_price;
+  return {
+    calculated_price_number: unit_price,
+    calculated_price: convertToLocale({
+      amount: unit_price,
+      currency_code,
+    }),
+    original_price_number: calculated_amount,
+    original_price: convertToLocale({
+      amount: calculated_amount,
+      currency_code,
+    }),
+    currency_code,
+    price_type: compare_at_unit_price ? "sale" : null,
+    percentage_diff: getPercentageDiff(calculated_amount, unit_price),
+    saving_price_number: calculated_amount - unit_price,
+    saving_price: convertToLocale({
+      amount: calculated_amount - unit_price,
+      currency_code,
+    }),
+    variantId: variant_id,
   };
 };

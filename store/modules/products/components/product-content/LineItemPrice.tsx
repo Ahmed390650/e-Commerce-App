@@ -6,10 +6,10 @@ import { HttpTypes } from "@medusajs/types";
 type LineItemPriceProps = {
   item: HttpTypes.StoreCartLineItem | HttpTypes.StoreOrderLineItem;
   style?: "default" | "tight";
-  currencyCode: string;
+  currencyCode?: string;
 };
 
-const LineItemPrice = ({ item, currencyCode }: LineItemPriceProps) => {
+const LineItemPrice = ({ item, currencyCode = "eg" }: LineItemPriceProps) => {
   const { total, original_total } = item;
   const originalPrice = original_total;
   const currentPrice = total;
@@ -31,11 +31,6 @@ const LineItemPrice = ({ item, currencyCode }: LineItemPriceProps) => {
                 })}
               </span>
             </p>
-            {style === "default" && (
-              <span className="text-ui-fg-interactive">
-                -{getPercentageDiff(originalPrice, currentPrice || 0)}%
-              </span>
-            )}
           </>
         )}
         <span

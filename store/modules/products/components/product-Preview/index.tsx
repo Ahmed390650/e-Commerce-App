@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Thumbnail from "../product-gallery/Thumbnail";
 
 type ProductInfoProps = {
   product: HttpTypes.StoreProduct;
@@ -19,23 +20,14 @@ type ProductInfoProps = {
 const ProductPreview = async ({ product }: ProductInfoProps) => {
   const { cheapestPrice } = getProductPrice({ product });
   return (
-    <Card className="bg-[#f9f9f9] py-4 px-5 mb-4 cursor-pointer relative rounded-none shadow-none border-none h-[400px] flex flex-col gap-2">
+    <Card className="bg-[#f9f9f9] py-4 px-5 mb-4 cursor-pointer relative rounded-none shadow-none border-none w-full h-full flex flex-col gap-2">
       <CardContent className="p-0 flex-1  ">
         <Link
           href={`/products/${product.handle}`}
-          className="flex flex-col h-full"
+          className="flex flex-col h-full w-full"
         >
           {/* صورة المنتج */}
-          <div className="w-full basis-[90%] relative aspect-auto mb-5 flex items-center justify-center">
-            <Image
-              className="object-cover absolute aspect-square"
-              src={product?.thumbnail!}
-              alt={product.title}
-              width={200}
-              height={200}
-            />
-          </div>
-
+          <Thumbnail alt={product.title} thumbnail={product.thumbnail} />
           {/* النصوص + السعر */}
           <div className="flex flex-col  flex-1">
             <div className="font-bold text-sm truncate">{product.title}</div>

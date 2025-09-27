@@ -6,11 +6,10 @@ export default async function CartButton() {
   const cart = await retrieveCart().catch(() => null);
   const totalItems =
     cart?.items?.reduce((acc, item) => acc + item.quantity, 0) || 0;
-
   return (
     <Link href={"/cart"} className="relative inline-block">
       {/* Cart Icon */}
-      <ShoppingCartIcon size={24} />
+      <ShoppingCartIcon size={20} />
 
       {/* Badge (total items) */}
       {totalItems > 0 && (

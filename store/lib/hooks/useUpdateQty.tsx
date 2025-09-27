@@ -1,7 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import React from "react";
-import { updateLineItem } from "../data/cart";
 import { toast } from "sonner";
+import { updateLineItem } from "../data/cart";
 
 const useUpdateQty = () => {
   const { mutate, isPending } = useMutation({

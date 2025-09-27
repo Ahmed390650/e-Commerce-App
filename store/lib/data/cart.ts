@@ -53,13 +53,11 @@ export async function retrieveCart(cartId?: string, fields?: string) {
 
 export async function getOrSetCart(countryCode: string) {
   const region = await getRegion(countryCode);
-
   if (!region) {
     throw new Error(`Region not found for country code: ${countryCode}`);
   }
 
   let cart = await retrieveCart(undefined, "id,region_id");
-
   const headers = {
     ...(await getAuthHeaders()),
   };
@@ -126,9 +124,7 @@ export async function addToCart({
   if (!variantId) {
     throw new Error("Missing variant ID when adding to cart");
   }
-
   const cart = await getOrSetCart(countryCode);
-
   if (!cart) {
     throw new Error("Error retrieving or creating cart");
   }
@@ -430,7 +426,13 @@ export async function placeOrder(cartId?: string) {
  * @param regionId
  * @param countryCode
  */
-export async function updateRegion(countryCode: string, currentPath: string) {
+export async function updateRegion({
+  countryCode,
+  currentPath,
+}: {
+  countryCode: string;
+  currentPath: string;
+}) {
   const cartId = await getCartId();
   const region = await getRegion(countryCode);
 

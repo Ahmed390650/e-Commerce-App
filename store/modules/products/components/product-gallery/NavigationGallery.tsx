@@ -3,7 +3,7 @@ import { useCarousel } from "@/components/ui/carousel";
 import cn from "@/lib/utils";
 import { HttpTypes } from "@medusajs/types";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect } from "react";
 
 const NavigationGallery = ({
   images,
@@ -13,8 +13,16 @@ const NavigationGallery = ({
   const { api } = useCarousel();
   const [current, setCurrent] = React.useState(0);
   if (!images) return null;
+
+  useEffect(() => {
+    if (!api) return;
+    setCurrent(api.selectedScrollSnap());
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+  }, [api]);
   return (
-    <div className="flex flex-col gap-2 items-start w-16 h-full overflow-x-hidden">
+    <div className="md:flex flex-col gap-2  w-[15%] h-full overflow-x-hidden hidden ">
       {images.map((image, index) => (
         <div
           key={image.id}
@@ -34,7 +42,7 @@ const NavigationGallery = ({
               src={image.url}
               alt={image.id}
               fill
-              className="object-cover"
+              className="object-cover rounded-sm"
             />
           </div>
         </div>

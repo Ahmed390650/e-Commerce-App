@@ -151,7 +151,7 @@ const CustomPage = () => {
   );
 };
 export const config = defineRouteConfig({
-  label: "Custom",
+  label: "Cart",
   icon: ChatBubbleLeftRight,
 });
 export default CustomPage;

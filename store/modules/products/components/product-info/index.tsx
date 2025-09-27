@@ -8,6 +8,11 @@ import * as React from "react";
 import ActionButton from "../product-action";
 import OptionSelect from "../product-action/OptionsButton";
 import PreviewPrice from "../product-Preview/PreviewPrice";
+import {
+  AddToCartButton,
+  OptionsVariant,
+  useProduct,
+} from "@/components/product";
 
 const optionsAsKeymap = (
   variantOptions: HttpTypes.StoreProductVariant["options"]
@@ -24,30 +29,16 @@ const ProductInfo = ({
   product: HttpTypes.StoreProduct;
   countryCode: string;
 }) => {
-  const [options, setOptions] = React.useState<
-    Record<string, string | undefined>
-  >({});
-  const selectedVariant = React.useMemo(() => {
-    if (!product.variants || product.variants.length === 0) {
-      return;
-    }
+  const {
+    setOptionValue,
+    selectedVariant,
+    options,
+    cheapestPrice,
+    variantPrice,
+  } = useProduct();
 
-    return product.variants.find((v) => {
-      const variantOptions = optionsAsKeymap(v.options);
-      return isEqual(variantOptions, options);
-    });
-  }, [product.variants, options]);
-  const { variantPrice, cheapestPrice } = getProductPrice({
-    product,
-    variantId: selectedVariant?.id,
-  });
   // update the options when a variant is selected
-  const setOptionValue = (optionId: string, value: string) => {
-    setOptions((prev) => ({
-      ...prev,
-      [optionId]: value,
-    }));
-  };
+
   return (
     <div className="flex flex-col gap-2">
       <h1 className="font-bold text-[20px]">{product.title}</h1>
@@ -87,8 +78,8 @@ const ProductInfo = ({
         </div>
       )}
       <Separator />
-
-      <ActionButton variantId={selectedVariant?.id} countryCode={countryCode} />
+      <OptionsVariant />
+      <AddToCartButton />
     </div>
   );
 };

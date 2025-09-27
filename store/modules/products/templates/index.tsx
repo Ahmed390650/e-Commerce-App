@@ -1,11 +1,13 @@
-import { HttpTypes } from "@medusajs/types";
-import React from "react";
-import ImageGallery from "../components/product-gallery";
-import ProductInfo from "../components/product-info";
-import CartPopover from "@/modules/layout/components/cart-dialog";
+"use client";
+import { ProductProvider } from "@/components/product";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CartPopover from "@/modules/layout/components/cart-dialog";
+import { HttpTypes } from "@medusajs/types";
+import { useState } from "react";
+import ProductGallery from "../components/product-gallery/";
+import ProductInfo from "../components/product-info";
 import { ProductInfoTab } from "../components/product-tabs";
-const ProductTemplates = async ({
+const ProductTemplates = ({
   product,
   cart,
   countryCode,
@@ -14,28 +16,26 @@ const ProductTemplates = async ({
   cart: HttpTypes.StoreCart | null;
   countryCode: string;
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <div className=" flex flex-col w-full gap-5">
-      <div className="flex grow-0 shrink basis-auto flex-wrap">
-        <div className="w-full p-0 grow-0 shrink-0 basis-[58.33333333%] max-w-[58.33333333%]">
-          <div className="relative">
-            <div>
-              <div className="h-full w-full">
-                <div className="container">
-                  <div className="w-full flex flex-wrap box-border">
-                    <ImageGallery images={product.images} />
-                  </div>
-                </div>
-              </div>
-            </div>
+      <ProductProvider
+        product={product}
+        cart={cart}
+        countryCode={countryCode}
+        setIsOpen={setIsOpen}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
+          <div className="w-full">
+            <ProductGallery images={product.images} />
+          </div>
+
+          <div className="w-full">
+            <ProductInfo product={product} countryCode={countryCode} />
           </div>
         </div>
-
-        <div className="w-full p-0 grow-0 shrink-0  basis-[33.33333333%] max-w-[33.33333333%]">
-          <ProductInfo product={product} countryCode={countryCode} />
-          <CartPopover cart={cart} />
-        </div>
-      </div>
+      </ProductProvider>
+      <CartPopover cart={cart} isOpen={isOpen} setIsOpen={setIsOpen} />
       <div className="w-full ">
         <Tabs defaultValue="Information" className="w-full ">
           <TabsList className="w-full">
