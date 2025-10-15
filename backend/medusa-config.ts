@@ -43,5 +43,28 @@ module.exports = defineConfig({
         ],
       },
     },
+    {
+      resolve: "@medusajs/medusa/payment",
+      options: {
+        providers: [
+          {
+            resolve: "@medusajs/medusa/payment-stripe",
+            id: "stripe",
+            options: {
+              apiKey: process.env.STRIPE_API_KEY,
+            },
+          },
+        ],
+      },
+    },
+    {
+      resolve: "./src/modules/odoo",
+      options: {
+        url: process.env.ODOO_URL,
+        dbName: process.env.ODOO_DB_NAME,
+        username: process.env.ODOO_USERNAME,
+        apiKey: process.env.ODOO_API_KEY,
+      },
+    },
   ],
 });

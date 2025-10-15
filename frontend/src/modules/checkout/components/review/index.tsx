@@ -33,7 +33,7 @@ const Review = ({ cart }: { cart: any }) => {
           Review
         </Heading>
       </div>
-      {isOpen && previousStepsCompleted && (
+      {isOpen && (
         <>
           <div className="flex items-start gap-x-1 w-full mb-6">
             <div className="w-full">
