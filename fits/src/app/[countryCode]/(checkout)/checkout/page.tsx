@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 export default async function Checkout() {
   const cart = await retrieveCart();
   const user = await auth();
+
   if (!cart) {
     return notFound();
   }

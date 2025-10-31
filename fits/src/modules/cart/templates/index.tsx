@@ -2,9 +2,15 @@
 import { CartProvider } from "@/components/cart";
 import { Button } from "@/components/ui/button";
 import { convertToLocale } from "@/lib/utils/money";
+import { useClerk } from "@clerk/nextjs";
 import { HttpTypes } from "@medusajs/types";
 import Link from "next/link";
 import ListProductsLines from "../components/product-list";
+import usePaymentCheckout from "../hooks/usePayment";
+import { Loader2Icon } from "lucide-react";
+import React from "react";
+import { initiatePaymentSession, placeOrder } from "@/lib/data/cart";
+import { sdk } from "@/lib/sdk";
 function getCheckoutStep(cart: HttpTypes.StoreCart) {
   if (!cart?.shipping_address?.address_1 || !cart.email) {
     return "address";
@@ -14,11 +20,43 @@ function getCheckoutStep(cart: HttpTypes.StoreCart) {
     return "payment";
   }
 }
-const Cart = ({ cart }: { cart: HttpTypes.StoreCart }) => {
-  const step = getCheckoutStep(cart);
-
+type Payment = { orderNumber: string; session_id: string };
+const Cart = ({
+  cart,
+  payment,
+}: {
+  cart: HttpTypes.StoreCart;
+  payment?: Payment;
+}) => {
+  const { checkout, isPending } = usePaymentCheckout();
+  const clerk = useClerk();
+  React.useEffect(() => {
+    if (payment?.orderNumber && payment?.session_id) {
+      const handlePlaceOrder = async () => {
+        await placeOrder(payment.orderNumber);
+      };
+      handlePlaceOrder();
+    }
+  }, [payment?.orderNumber, payment?.session_id, cart.id, , cart]);
   const totalItems =
     cart?.items?.reduce((acc, item) => acc + item.quantity, 0) || 0;
+  const handleSubmit = async () => {
+    const clerkUserId = clerk.user?.id;
+    const customerEmail = clerk.user?.primaryEmailAddress?.emailAddress;
+    const customerName = `${clerk.user?.firstName} ${clerk.user?.lastName}`;
+    const orderNumber = cart.id;
+    if (!clerkUserId || !customerEmail) return;
+
+    checkout({
+      cart,
+      metadata: {
+        clerkUserId,
+        customerEmail,
+        customerName,
+        orderNumber,
+      },
+    });
+  };
   return (
     <CartProvider cart={cart} key={cart.id}>
       <div className="relative min-h-screen ">
@@ -102,7 +140,14 @@ const Cart = ({ cart }: { cart: HttpTypes.StoreCart }) => {
                 asChild
                 className="h-[2.813rem] uppercase text-[0.938em]  font-semibold  cursor-pointer px-[2.5rem]"
               >
-                <Link href={`/checkout?step=${step}`}>Proceed to Checkout</Link>
+                <Link href="/checkout?step=shipping">proceed to checkout</Link>
+                {/* <Button size={"lg"} onClick={handleSubmit} disabled={isPending}>
+                  {isPending ? (
+                    <Loader2Icon className="animate-spin" />
+                  ) : (
+                    "Proceed to Checkout"
+                  )}
+                </Button> */}
               </Button>
             </div>
           </div>

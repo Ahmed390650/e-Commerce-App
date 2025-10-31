@@ -1,93 +1,31 @@
 "use client";
-
-import * as React from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle2, Loader2 } from "lucide-react";
-
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import {
   Card,
-  CardHeader,
-  CardTitle,
   CardContent,
   CardFooter,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { setAddresses } from "@/lib/data/cart";
+import { Field, FieldGroup } from "@/components/ui/field";
 import { HttpTypes } from "@medusajs/types";
+import CountrySelect from "../country-select";
+import useAdresses from "./useAdresses";
 
-// 🧾 Zod validation schema
-const addressSchema = z.object({
-  first_name: z.string().min(1, "First name is required"),
-  last_name: z.string().min(1, "Last name is required"),
-  address_1: z.string().min(1, "Address is required"),
-  address_2: z.string().optional(),
-  city: z.string().min(1, "City is required"),
-  postal_code: z.string().min(1, "Postal code is required"),
-  country_code: z.string().min(2, "Country code required"),
-  phone: z.string().optional(),
-});
-
-const formSchema = z.object({
-  shipping: addressSchema,
-  billing: addressSchema.optional(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-export default function Addresses({ cart }: { cart: HttpTypes.StoreCart }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const isOpen = searchParams.get("step") === "address";
-  const [sameAsBilling, setSameAsBilling] = React.useState(true);
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      shipping: {
-        first_name: "",
-        last_name: "",
-        address_1: "",
-        address_2: "",
-        city: "",
-        postal_code: "",
-        country_code: "US",
-        phone: "",
-      },
-      billing: {
-        first_name: "",
-        last_name: "",
-        address_1: "",
-        address_2: "",
-        city: "",
-        postal_code: "",
-        country_code: "US",
-      },
-    },
-  });
-
-  async function onSubmit(values: FormValues) {
-    setAddresses(_, values);
-    router.push(`${pathname}?step=delivery`);
-  }
-  const shipping = form.watch("shipping");
-  const billing = form.watch("billing");
-  const handleEdit = () => router.push(`${pathname}?step=address`);
-
+export default function Addresses({
+  cart,
+  region,
+}: {
+  cart: HttpTypes.StoreCart;
+  region: HttpTypes.StoreRegion;
+}) {
+  const { form, handleEdit, isOpen, isPending } = useAdresses({ cart });
+  const {
+    billing_address: billing,
+    sameAsBilling,
+    shipping_address: shipping,
+  } = form.state.values;
   return (
     <Card className="bg-white border shadow-sm rounded-2xl">
       <CardHeader className="flex items-center justify-between">
@@ -105,230 +43,180 @@ export default function Addresses({ cart }: { cart: HttpTypes.StoreCart }) {
 
       <CardContent>
         {isOpen ? (
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit, (er) => {
-                console.log(er);
-              })}
-              className="space-y-10"
-            >
-              {/* Shipping Address */}
-              <div className="space-y-4">
-                <h3 className="text-base font-medium">Shipping Details</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="shipping.first_name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>First name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="John" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="shipping.last_name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Last name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Doe" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="shipping.address_1"
-                    render={({ field }) => (
-                      <FormItem className="col-span-2">
-                        <FormLabel>Address Line 1</FormLabel>
-                        <FormControl>
-                          <Input placeholder="123 Main St" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="shipping.address_2"
-                    render={({ field }) => (
-                      <FormItem className="col-span-2">
-                        <FormLabel>Address Line 2</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Apt, suite, etc." {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="shipping.city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>City</FormLabel>
-                        <FormControl>
-                          <Input placeholder="New York" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="shipping.postal_code"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Postal Code</FormLabel>
-                        <FormControl>
-                          <Input placeholder="10001" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="shipping.country_code"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Country Code</FormLabel>
-                        <FormControl>
-                          <Input placeholder="US" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="shipping.phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phone</FormLabel>
-                        <FormControl>
-                          <Input placeholder="+1 234 567 890" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-
-              {/* Billing Address */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-medium">Billing Address</h3>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={sameAsBilling}
-                      onCheckedChange={setSameAsBilling}
-                    />
-                    <span className="text-sm text-muted-foreground">
-                      Same as shipping
-                    </span>
-                  </div>
-                </div>
-
-                {!sameAsBilling && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="billing.first_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>First name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="John" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="billing.last_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Last name</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Doe" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="billing.address_1"
-                      render={({ field }) => (
-                        <FormItem className="col-span-2">
-                          <FormLabel>Address Line 1</FormLabel>
-                          <FormControl>
-                            <Input placeholder="123 Main St" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="billing.city"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>City</FormLabel>
-                          <FormControl>
-                            <Input placeholder="New York" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="billing.postal_code"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Postal Code</FormLabel>
-                          <FormControl>
-                            <Input placeholder="10001" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+          <form
+            onSubmit={(e) => {
+              console.log(e);
+              e.preventDefault();
+              form.handleSubmit();
+            }}
+            className="space-y-10"
+          >
+            {/* Shipping Address */}
+            <FieldGroup className="grid grid-cols-2 gap-2">
+              <form.AppField name="shipping_address.first_name">
+                {(field) => (
+                  <field.Input label="First Name" placeholder="John" />
                 )}
+              </form.AppField>
+
+              <form.AppField name="shipping_address.last_name">
+                {(field) => <field.Input label="Last Name" placeholder="Doe" />}
+              </form.AppField>
+
+              <form.AppField name="shipping_address.address_1">
+                {(field) => (
+                  <field.Input
+                    label="Address Line 1"
+                    placeholder="123 Main St"
+                  />
+                )}
+              </form.AppField>
+
+              <form.AppField name="shipping_address.address_2">
+                {(field) => (
+                  <field.Input
+                    label="Address Line 2"
+                    placeholder="Apt, Suite, etc."
+                  />
+                )}
+              </form.AppField>
+
+              <form.AppField name="shipping_address.company">
+                {(field) => (
+                  <field.Input label="Company" placeholder="Acme Inc." />
+                )}
+              </form.AppField>
+
+              <form.AppField name="shipping_address.city">
+                {(field) => <field.Input label="City" placeholder="New York" />}
+              </form.AppField>
+
+              <form.AppField name="shipping_address.province">
+                {(field) => (
+                  <field.Input
+                    label="Province / State"
+                    placeholder="California"
+                  />
+                )}
+              </form.AppField>
+
+              <form.AppField name="shipping_address.postal_code">
+                {(field) => (
+                  <field.Input label="Postal Code" placeholder="10001" />
+                )}
+              </form.AppField>
+
+              <form.AppField name="shipping_address.country_code">
+                {(field) => (
+                  <field.Select label="Country Code">
+                    <CountrySelect region={region} />
+                  </field.Select>
+                )}
+              </form.AppField>
+
+              <form.AppField name="shipping_address.phone">
+                {(field) => (
+                  <field.Input
+                    label="Phone Number"
+                    placeholder="+1 234 567 890"
+                  />
+                )}
+              </form.AppField>
+              <div className="flex justify-start">
+                <form.AppField name="sameAsBilling">
+                  {(field) => <field.Switch label="Same as Billing Address" />}
+                </form.AppField>
               </div>
+              {!sameAsBilling && (
+                <FieldGroup>
+                  <form.AppField name="shipping_address.first_name">
+                    {(field) => (
+                      <field.Input label="First Name" placeholder="John" />
+                    )}
+                  </form.AppField>
+
+                  <form.AppField name="shipping_address.last_name">
+                    {(field) => (
+                      <field.Input label="Last Name" placeholder="Doe" />
+                    )}
+                  </form.AppField>
+
+                  <form.AppField name="shipping_address.address_1">
+                    {(field) => (
+                      <field.Input
+                        label="Address Line 1"
+                        placeholder="123 Main St"
+                      />
+                    )}
+                  </form.AppField>
+
+                  <form.AppField name="shipping_address.address_2">
+                    {(field) => (
+                      <field.Input
+                        label="Address Line 2"
+                        placeholder="Apt, Suite, etc."
+                      />
+                    )}
+                  </form.AppField>
+
+                  <form.AppField name="shipping_address.company">
+                    {(field) => (
+                      <field.Input label="Company" placeholder="Acme Inc." />
+                    )}
+                  </form.AppField>
+
+                  <form.AppField name="shipping_address.city">
+                    {(field) => (
+                      <field.Input label="City" placeholder="New York" />
+                    )}
+                  </form.AppField>
+
+                  <form.AppField name="shipping_address.province">
+                    {(field) => (
+                      <field.Input
+                        label="Province / State"
+                        placeholder="California"
+                      />
+                    )}
+                  </form.AppField>
+
+                  <form.AppField name="shipping_address.postal_code">
+                    {(field) => (
+                      <field.Input label="Postal Code" placeholder="10001" />
+                    )}
+                  </form.AppField>
+
+                  <form.AppField name="shipping_address.country_code">
+                    {(field) => (
+                      <field.Input label="Country Code" placeholder="US" />
+                    )}
+                  </form.AppField>
+
+                  <form.AppField name="shipping_address.phone">
+                    {(field) => (
+                      <field.Input
+                        label="Phone Number"
+                        placeholder="+1 234 567 890"
+                      />
+                    )}
+                  </form.AppField>
+                </FieldGroup>
+              )}
 
               <CardFooter className="flex justify-end pt-6">
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting && (
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  )}
-                  Continue to delivery
-                </Button>
+                <Field orientation="horizontal">
+                  <Button type="submit" disabled={isPending}>
+                    {isPending && (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    )}
+                    Continue to delivery
+                  </Button>
+                </Field>
               </CardFooter>
-            </form>
-          </Form>
+            </FieldGroup>
+          </form>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Shipping Address */}
             <Card data-testid="shipping-address-summary">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold">
@@ -360,8 +248,8 @@ export default function Addresses({ cart }: { cart: HttpTypes.StoreCart }) {
               </CardContent>
             </Card>
 
-            {/* Billing Address */}
-            <Card data-testid="billing-address-summary">
+            {/* billing_address Address */}
+            <Card data-testid="billing_address-address-summary">
               <CardHeader>
                 <CardTitle className="text-lg font-semibold">
                   Billing Address
@@ -391,8 +279,6 @@ export default function Addresses({ cart }: { cart: HttpTypes.StoreCart }) {
           </div>
         )}
       </CardContent>
-
-      <Separator className="mt-6" />
     </Card>
   );
 }

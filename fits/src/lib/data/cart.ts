@@ -233,10 +233,13 @@ export async function setShippingMethod({
     .catch(medusaError);
 }
 
-export async function initiatePaymentSession(
-  cart: HttpTypes.StoreCart,
-  data: HttpTypes.StoreInitializePaymentSession
-) {
+export async function initiatePaymentSession({
+  cart,
+  data,
+}: {
+  cart: HttpTypes.StoreCart;
+  data: HttpTypes.StoreInitializePaymentSession;
+}) {
   const headers = {
     ...(await getAuthHeaders()),
   };
@@ -330,7 +333,7 @@ export async function submitPromotionForm(
 }
 
 // TODO: Pass a POJO instead of a form entity here
-export async function setAddresses(currentState: unknown, formData: FormData) {
+export async function setAddresses(formData: FormData) {
   try {
     if (!formData) {
       throw new Error("No form data found when setting addresses");
@@ -373,8 +376,9 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
         phone: formData.get("billing_address.phone"),
       };
     await updateCart(data);
+    return data;
   } catch (e: any) {
-    return e.message;
+    throw new Error(e);
   }
 
   redirect(
@@ -406,7 +410,6 @@ export async function placeOrder(cartId?: string) {
       return cartRes;
     })
     .catch(medusaError);
-
   if (cartRes?.type === "order") {
     const countryCode =
       cartRes.order.shipping_address?.country_code?.toLowerCase();
@@ -415,7 +418,7 @@ export async function placeOrder(cartId?: string) {
     revalidateTag(orderCacheTag);
 
     removeCartId();
-    redirect(`/${countryCode}/order/${cartRes?.order.id}/confirmed`);
+    // redirect(`/${countryCode}/order/${cartRes?.order.id}/confirmed`);
   }
 
   return cartRes.cart;

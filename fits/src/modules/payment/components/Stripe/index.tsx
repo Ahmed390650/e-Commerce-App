@@ -1,12 +1,10 @@
 "use client";
-import { useCart } from "@/components/cart";
-import React from "react";
-import StripeForm from "./StripeForm";
+import { HttpTypes } from "@medusajs/types";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import StripeForm from "./StripeForm";
 const stripe = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PK || "temp");
-const StripePayment = () => {
-  const { cart } = useCart();
+const StripePayment = ({ cart }: { cart: HttpTypes.StoreCart }) => {
   const clientSecret = cart?.payment_collection?.payment_sessions?.[0].data
     .client_secret as string;
   return (

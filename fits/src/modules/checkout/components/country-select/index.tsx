@@ -1,13 +1,15 @@
 import { forwardRef, useImperativeHandle, useMemo, useRef } from "react";
 
 import { HttpTypes } from "@medusajs/types";
+import { FormSelect } from "@/components/form/FormSelect";
+import { SelectItem } from "@/components/ui/select";
 
 const CountrySelect = forwardRef<
   HTMLSelectElement,
-  NativeSelectProps & {
-    region?: HttpTypes.StoreRegion;
+  {
+    region: HttpTypes.StoreRegion;
   }
->(({ placeholder = "Country", region, defaultValue, ...props }, ref) => {
+>(({ region, ...props }, ref) => {
   const innerRef = useRef<HTMLSelectElement>(null);
 
   useImperativeHandle<HTMLSelectElement | null, HTMLSelectElement | null>(
@@ -27,18 +29,13 @@ const CountrySelect = forwardRef<
   }, [region]);
 
   return (
-    <select
-      ref={innerRef}
-      placeholder={placeholder}
-      defaultValue={defaultValue}
-      {...props}
-    >
+    <>
       {countryOptions?.map(({ value, label }, index) => (
-        <option key={index} value={value}>
+        <SelectItem key={index} value={value ?? ""}>
           {label}
-        </option>
+        </SelectItem>
       ))}
-    </select>
+    </>
   );
 });
 

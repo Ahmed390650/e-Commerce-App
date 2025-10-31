@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { convertToLocale } from "@/lib/utils/money";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import ErrorMessage from "../error-message";
+import { setShippingMethod } from "@/lib/data/cart";
 
 const PICKUP_OPTION_ON = "__PICKUP_ON";
 const PICKUP_OPTION_OFF = "__PICKUP_OFF";
@@ -83,7 +84,7 @@ export default function Shipping({
     }
 
     loadCalculatedPrices();
-  }, [availableShippingMethods, shippingMethods, cart]);
+  }, []);
 
   async function handleSetShippingMethod(
     id: string,
@@ -96,7 +97,7 @@ export default function Shipping({
     else setShowPickupOptions(PICKUP_OPTION_OFF);
 
     try {
-      // await setShippingMethod({ cartId: cart.id, shippingMethodId: id });
+      await setShippingMethod({ cartId: cart.id, shippingMethodId: id });
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -279,8 +280,6 @@ export default function Shipping({
           )}
         </div>
       )}
-
-      <Separator className="mt-8" />
     </div>
   );
 }
